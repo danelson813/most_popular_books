@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup as bs
 import pandas as pd
+import sqlite3
 
 def get_url(i):
         url = f"https://books.toscrape.com/catalogue/page-{i+1}.html"
@@ -31,6 +32,11 @@ def print_to_disk(result):
     with open('data.csv', 'a') as f:
         f.write(str(result)+ '\n')
 
+def save_to_db(data):
+    conn = sqlite3.connect(r'books.db')
+    curr = conn.cursor()
+    data.to_sql('books', conn, if_exists='replace', index=False)
+   
 
 def read_csvfile():
     return pd.read_csv('data.csv', names=['title', 'price', 'link'])
@@ -44,7 +50,7 @@ def main():
         get_info(books)
     data = read_csvfile()
     data.to_csv('df.csv', index=False)
-       
+    save_to_db(data)  
 
 if __name__ == '__main__':
     main()
